@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FARWATER — nautical-chart light theme.
+   Paper the color of a chart, ink the color of deep water, one teal accent,
+   and buoy orange reserved for safety/warning semantics only. Deliberately
+   the opposite pole from Askyan's dark amber cinema: sibling company,
+   different ocean. */
+
+:root {
+  --button-outline: rgba(20,40,47, .12);
+  --badge-outline: rgba(20,40,47, .06);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(20,40,47, .04);
+  --elevate-2: rgba(20,40,47, .09);
+  --background: 168 20% 96%;
+  --foreground: 197 40% 13%;
+  --border: 170 16% 84%;
+  --card: 168 25% 99%;
+  --card-foreground: 197 40% 13%;
+  --card-border: 170 16% 88%;
+  --sidebar: 168 20% 94%;
+  --sidebar-foreground: 197 40% 13%;
+  --sidebar-border: 170 16% 84%;
+  --sidebar-primary: 186 81% 29%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 170 20% 90%;
+  --sidebar-accent-foreground: 197 40% 13%;
+  --sidebar-ring: 186 81% 29%;
+  --popover: 168 25% 99%;
+  --popover-foreground: 197 40% 13%;
+  --popover-border: 170 16% 84%;
+  --primary: 186 81% 29%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 170 18% 90%;
+  --secondary-foreground: 197 40% 13%;
+  --muted: 170 18% 91%;
+  --muted-foreground: 194 14% 40%;
+  --accent: 172 22% 88%;
+  --accent-foreground: 197 40% 13%;
+  --destructive: 21 89% 44%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 170 14% 76%;
+  --ring: 186 81% 29%;
+  --chart-1: 186 81% 29%;
+  --chart-2: 194 60% 40%;
+  --chart-3: 205 50% 45%;
+  --chart-4: 172 45% 35%;
+  --chart-5: 21 89% 44%;
+  --font-sans: 'Spectral', Georgia, serif;
+  --font-serif: 'Spectral', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', Menlo, monospace;
+  --radius: .25rem;
+  --shadow-2xs: 0px 1px 0px 0px hsl(197 40% 13% / 0.05);
+  --shadow-xs: 0px 1px 2px 0px hsl(197 40% 13% / 0.07);
+  --shadow-sm: 0px 1px 2px 0px hsl(197 40% 13% / 0.07), 0px 1px 3px 0px hsl(197 40% 13% / 0.08);
+  --shadow: 0px 1px 3px 0px hsl(197 40% 13% / 0.09), 0px 1px 2px -1px hsl(197 40% 13% / 0.09);
+  --shadow-md: 0px 4px 6px -1px hsl(197 40% 13% / 0.09), 0px 2px 4px -2px hsl(197 40% 13% / 0.09);
+  --shadow-lg: 0px 10px 15px -3px hsl(197 40% 13% / 0.10), 0px 4px 6px -4px hsl(197 40% 13% / 0.10);
+  --shadow-xl: 0px 20px 25px -5px hsl(197 40% 13% / 0.10), 0px 8px 10px -6px hsl(197 40% 13% / 0.10);
+  --shadow-2xl: 0px 25px 50px -12px hsl(197 40% 13% / 0.16);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Fallbacks for older browsers, then relative-color upgrades */
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  /* Farwater-specific named colors (non-shadcn surfaces) */
+  --sea-ink: #0d181c;
+  --sea-ink-2: #122026;
+  --sea-line: #24363b;
+  --sea-text: #dbe7e5;
+  --sea-text-dim: #8aa3a0;
+  --teal: #0e7c86;
+  --teal-bright: #3db6bf;
+  --signal: #d4590a;
+}
+
+/* Dark sections opt in with .sea (hero, footer) rather than a global theme:
+   the site is chart-paper light; the water is dark. */
+.sea {
+  background: var(--sea-ink);
+  color: var(--sea-text);
+}
+.sea .text-dim { color: var(--sea-text-dim); }
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    line-height: 1.68;
+  }
+  .font-display { font-family: 'Big Shoulders Display', 'Arial Narrow', sans-serif; }
+  .font-body { font-family: 'Spectral', Georgia, serif; }
+  .font-mono { font-family: 'IBM Plex Mono', Menlo, monospace; }
+}
+
+/* Elevate interaction system (inherited from the shared codebase) */
+@layer utilities {
+  input[type="search"]::-webkit-search-cancel-button { @apply hidden; }
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+  .no-default-hover-elevate {}
+  .no-default-active-elevate {}
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: -1;
+  }
+  .toggle-elevate.toggle-elevated::before { background-color: var(--elevate-2); }
+  .border.toggle-elevate::before { inset: -1px; }
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    border-radius: inherit;
+    z-index: 999;
+  }
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after { background-color: var(--elevate-1); }
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after { background-color: var(--elevate-2); }
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after { inset: -1px; }
+}
+
+/* ── Interaction smoothness (inherited, recolored) ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+::selection { background: rgba(14, 124, 134, 0.22); }
+
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+button, a, [role="button"] {
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+button:active, [role="button"]:active { transform: scale(0.985); }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(170 14% 72%) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: hsl(170 14% 72%);
+  border-radius: 5px;
+  border: 2px solid hsl(168 20% 96%);
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--teal); }
+
+/* Hero video players (for when real footage lands via CI): compositor layer */
+.hero-video {
+  will-change: opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Route transitions: pages ease in rather than snapping. */
+@media (prefers-reduced-motion: no-preference) {
+  .route-fade { animation: route-fade-in 0.28s ease both; }
+  @keyframes route-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* Depth rail numerals + coordinates read as instrument text */
+.coord {
+  font-family: 'IBM Plex Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
