@@ -66,7 +66,7 @@ export default function Departures() {
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
           {/* the sheet: pinned on wide screens, a block above the rows on phones */}
           <div className="order-first lg:order-last">
-            <div className="lg:sticky lg:top-24 lg:flex lg:h-[calc(100vh-7rem)] lg:flex-col lg:gap-4">
+            <div className="lg:sticky lg:top-24 lg:flex lg:h-[calc(100vh-11.5rem)] lg:flex-col lg:gap-4">
               <div className="relative h-[52vw] max-h-[28rem] w-full overflow-hidden border border-[var(--sea-line)] lg:h-auto lg:max-h-none lg:flex-1">
                 <SoundingChart points={points} active={active} className="absolute inset-0 h-full w-full" />
               </div>
