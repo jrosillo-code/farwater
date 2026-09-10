@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://farwater.vercel.app/</loc></url>
-  <url><loc>https://farwater.vercel.app/departures</loc></url>
-  <url><loc>https://farwater.vercel.app/departure/cortez-crossing</loc></url>
-  <url><loc>https://farwater.vercel.app/departure/azuero-line</loc></url>
-  <url><loc>https://farwater.vercel.app/departure/ninth-island</loc></url>
-  <url><loc>https://farwater.vercel.app/departure/doggie-belt</loc></url>
-  <url><loc>https://farwater.vercel.app/standard</loc></url>
-  <url><loc>https://farwater.vercel.app/about</loc></url>
-  <url><loc>https://farwater.vercel.app/apply</loc></url>
-  <url><loc>https://farwater.vercel.app/ledger</loc></url>
-  <url><loc>https://farwater.vercel.app/privacy</loc></url>
-  <url><loc>https://farwater.vercel.app/terms</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/departures</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/departure/cortez-crossing</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/departure/azuero-line</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/departure/ninth-island</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/departure/doggie-belt</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/standard</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/about</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/apply</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/ledger</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/privacy</loc></url>
+  <url><loc>https://farwater-theta.vercel.app/terms</loc></url>
 </urlset>

@@ -6,6 +6,7 @@ import { SeaChart } from "@/components/sea-chart";
 import { ScrubText } from "@/components/descent/scrub-text";
 import { SeasonTicks } from "@/components/descent/slate-rail";
 import { SoundingChart } from "@/components/descent/sounding-chart";
+import { WaterSignature } from "@/components/descent/water-signature";
 import { departureById, STATUS_LABEL, parseCoords, type Departure } from "@/lib/departures";
 
 // One dossier template, every departure, read off departures.ts. The header
@@ -83,7 +84,8 @@ function Header({ d }: { d: Departure }) {
   return (
     <section ref={ref} className="relative flex min-h-[88vh] flex-col justify-end overflow-hidden" data-testid="dossier-header">
       <motion.div className="absolute inset-0" style={{ y: chartY }}>
-        <SeaChart className="absolute inset-0 h-[130%] w-full" lines={13} />
+        <WaterSignature seed={d.coords} className="absolute inset-0 h-[130%] w-full" strength={0.9} />
+        <SeaChart className="absolute inset-0 h-[130%] w-full opacity-60" lines={9} depthScale={false} />
       </motion.div>
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[rgba(7,15,18,.92)]" />
       <motion.div className="relative mx-auto w-full max-w-6xl px-6 pb-16 pt-40 lg:pl-24" style={{ y: typeY, opacity: fade }}>

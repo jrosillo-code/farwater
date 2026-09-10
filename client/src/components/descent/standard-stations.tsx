@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from "framer-motion";
+import { RuleDiagram } from "@/components/descent/rule-diagrams";
 
-// The Standard as three stations on the way down. The section pins, a line
-// draws downward with your scroll, and each rule lights when the needle
-// reaches it. The rules are the site's real argument, so they get the page's
-// slowest chapter.
+// The Standard as three stations on the way down: a short briefing that
+// pins for three screens (never more), a line that draws with your scroll,
+// and each rule lit — with its diagram — when the needle reaches it. The
+// rules are the site's real argument, so they get the page's slowest chapter.
+// The depth marks are the page's storytelling, not diving requirements.
 export const RULES = [
-  { n: "01", depth: "−12 m", title: "We dove it first", body: "No departure is sold before a founder has been in that water with the operator who will run it. The scout on the slate is what that looks like in practice." },
-  { n: "02", depth: "−18 m", title: "One up, one down", body: "Buddy protocol on every drop, a dedicated safety diver in the water, and a professional co-lead on every founding departure. Depth claims get checked on the application call, not discovered at sea." },
-  { n: "03", depth: "−24 m", title: "The evacuation plan is written before the invoice", body: "Every departure carries a named medical evacuation plan and requires DAN-level dive coverage. If we can't write the plan, we don't run the trip — that's why some waters stay 'scouting'." },
+  { n: "01", diagram: "01", depth: "−12 m", title: "We dove it first", body: "No departure is sold before a founder has been in that water with the operator who will run it. The scout on the slate is what that looks like in practice." },
+  { n: "02", diagram: "03", depth: "−18 m", title: "One up, one down", body: "Buddy protocol on every drop, a dedicated safety diver in the water, and a professional co-lead on every founding departure. Depth claims get checked on the application call, not discovered at sea." },
+  { n: "03", diagram: "04", depth: "−24 m", title: "The evacuation plan is written before the invoice", body: "Every departure carries a named medical evacuation plan and requires DAN-level dive coverage. If we can't write the plan, we don't run the trip — that's why some waters stay 'scouting'." },
 ] as const;
 
 function Kicker() {
@@ -49,7 +51,7 @@ function Pinned() {
   const rule = RULES[active];
 
   return (
-    <section ref={ref} className="relative" style={{ height: `${n * 100 + 100}vh` }} data-testid="section-standard" data-standard-mode="pinned">
+    <section ref={ref} id="standard" className="relative" style={{ height: `${n * 70 + 100}vh` }} data-testid="section-standard" data-standard-mode="pinned">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-12 gap-10 px-6 pl-24">
           <div className="col-span-5">
@@ -81,9 +83,12 @@ function Pinned() {
                 className="absolute inset-0 flex flex-col justify-center"
                 data-testid={i === active ? "station-active" : undefined}
               >
-                <div className="flex items-baseline gap-4">
-                  <span className="font-display text-7xl font-bold text-[var(--teal-bright)] xl:text-8xl">{r.n}</span>
-                  <span className="coord text-xs text-[var(--signal)]">{r.depth}</span>
+                <div className="flex items-end justify-between gap-6">
+                  <div className="flex items-baseline gap-4">
+                    <span className="font-display text-7xl font-bold text-[var(--teal-bright)] xl:text-8xl">{r.n}</span>
+                    <span className="coord text-xs text-[var(--signal)]">{r.depth}</span>
+                  </div>
+                  <RuleDiagram n={r.diagram} className="h-20 w-32 shrink-0 opacity-90" />
                 </div>
                 <h3 className="mt-4 font-display text-3xl font-bold uppercase leading-[1] tracking-tight text-[var(--sea-text)] xl:text-4xl" style={{ textWrap: "balance" }}>
                   {r.title}
@@ -101,15 +106,18 @@ function Pinned() {
 
 function Stacked() {
   return (
-    <section className="relative px-6 py-20" data-testid="section-standard" data-standard-mode="stacked">
+    <section id="standard" className="relative px-6 py-20" data-testid="section-standard" data-standard-mode="stacked">
       <div className="mx-auto max-w-6xl">
         <Kicker />
         <div className="mt-10 grid gap-8 md:grid-cols-3">
           {RULES.map((r) => (
             <div key={r.n} className="border-t border-[var(--sea-line)] pt-5">
-              <div className="flex items-baseline gap-3">
-                <span className="font-display text-4xl font-bold text-[var(--teal-bright)]">{r.n}</span>
-                <span className="coord text-[11px] text-[var(--signal)]">{r.depth}</span>
+              <div className="flex items-end justify-between gap-4">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display text-4xl font-bold text-[var(--teal-bright)]">{r.n}</span>
+                  <span className="coord text-[11px] text-[var(--signal)]">{r.depth}</span>
+                </div>
+                <RuleDiagram n={r.diagram} className="h-14 w-24 shrink-0 opacity-90" />
               </div>
               <h3 className="mt-2 font-display text-2xl font-bold uppercase tracking-tight text-[var(--sea-text)]">{r.title}</h3>
               <p className="mt-3 font-body text-sm leading-relaxed text-[var(--sea-text-dim)]">{r.body}</p>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
-import { BRAND } from "@/lib/brand";
+import { AnimatePresence, motion } from "framer-motion";
+import { BRAND, TAGLINE } from "@/lib/brand";
 
 // One header for the whole site. Over the dark hero it renders in sea-glass
 // text on nothing; the moment the page scrolls it settles onto chart paper.
@@ -56,6 +57,10 @@ export function SharedHeader({ variant = "solid" }: SharedHeaderProps) {
   }, []);
 
   useEffect(() => setMenuOpen(false), [location]);
+  useEffect(() => {
+    document.documentElement.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.documentElement.style.overflow = ""; };
+  }, [menuOpen]);
 
   const overSea = (variant === "chart" && !scrolled && !menuOpen) || (variant === "sea" && !menuOpen);
   const shell =
@@ -121,32 +126,45 @@ export function SharedHeader({ variant = "solid" }: SharedHeaderProps) {
         </button>
       </div>
 
-      <div
-        className={`absolute inset-x-0 top-full border-b border-border bg-background transition-all duration-300 md:hidden ${
-          menuOpen ? "visible opacity-100" : "invisible opacity-0"
-        }`}
-        data-testid="mobile-menu"
-      >
-        <nav className="flex flex-col gap-1 p-6" aria-label="Primary mobile">
-          {NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="py-2.5 font-display text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
-              data-testid={`link-mobile-${item.label.toLowerCase().replace(/\s/g, "-")}`}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link
-            href="/apply"
-            className="mt-3 rounded-sm bg-primary py-3 text-center font-display text-sm font-bold uppercase tracking-[0.18em] text-primary-foreground"
-            data-testid="button-mobile-apply"
+      {/* The menu on phones: a full sheet of water, links surfacing in order. */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="sheet"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.25 } }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-x-0 bottom-0 top-[64px] z-40 flex flex-col bg-[rgba(13,24,28,.96)] backdrop-blur-md md:hidden"
+            data-testid="mobile-menu"
           >
-            Apply
-          </Link>
-        </nav>
-      </div>
+            <nav className="flex flex-1 flex-col justify-center gap-1 px-8" aria-label="Primary mobile">
+              {NAV.map((item, i) => (
+                <motion.div key={item.href} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.45, delay: 0.05 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}>
+                  <Link
+                    href={item.href}
+                    className="flex items-baseline gap-4 border-b border-[var(--sea-line)] py-4 font-display text-4xl font-bold uppercase tracking-tight text-[var(--sea-text)] transition-colors hover:text-[var(--teal-bright)]"
+                    data-testid={`link-mobile-${item.label.toLowerCase().replace(/\s/g, "-")}`}
+                  >
+                    <span className="coord text-[10px] text-[var(--teal-bright)]">{String(i + 1).padStart(2, "0")}</span>
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
+              <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.45, delay: 0.05 + NAV.length * 0.06, ease: [0.22, 1, 0.36, 1] }}>
+                <Link
+                  href="/apply"
+                  className="mt-6 block rounded-sm bg-[var(--teal-bright)] py-3.5 text-center font-display text-sm font-bold uppercase tracking-[0.18em] text-[var(--sea-ink)]"
+                  data-testid="button-mobile-apply"
+                >
+                  Apply for a departure
+                </Link>
+              </motion.div>
+            </nav>
+            <p className="coord px-8 pb-8 text-[10px] text-[var(--sea-text-dim)]">{BRAND} · {TAGLINE.toUpperCase()}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

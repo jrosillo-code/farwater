@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { DescentShell, PageHead } from "@/components/descent/shell";
 import { ScrubText } from "@/components/descent/scrub-text";
 import { Counter } from "@/components/descent/counter";
+import { RuleDiagram } from "@/components/descent/rule-diagrams";
 
 // The Standard: the safety rulebook, published in full before the first
 // paying departure. In a sport that kills experienced divers every year this
@@ -56,7 +57,10 @@ function Rule({ rule, i }: { rule: (typeof OURS)[number]; i: number }) {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className={`lg:col-span-7 ${flip ? "lg:col-start-1" : "lg:col-start-6"}`}
         >
-          <p className="coord text-xs text-[var(--signal)]">RULE {rule.n} OF {String(OURS.length).padStart(2, "0")}</p>
+          <div className="flex items-end justify-between gap-6">
+            <p className="coord text-xs text-[var(--signal)]">RULE {rule.n} OF {String(OURS.length).padStart(2, "0")}</p>
+            <RuleDiagram n={rule.n} className="h-20 w-32 shrink-0" />
+          </div>
           <h3 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.95] tracking-tight text-[var(--sea-text)] md:text-6xl" style={{ textWrap: "balance" }}>
             {rule.title}
           </h3>

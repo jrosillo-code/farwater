@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "dist", "public");
-const BASE = "https://farwater.vercel.app";
+const BASE = "https://farwater-theta.vercel.app";
 
 const DEPARTURES = [
   { id: "cortez-crossing", code: "FW-001", title: "The Cortez Crossing", country: "Mexico", desc: "Seven days of expedition spearfishing in Baja California Sur — yellowtail, wahoo and yellowfin on the far side of the Sea of Cortez. Eight guns, founding rates." },

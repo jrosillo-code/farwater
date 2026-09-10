@@ -17,9 +17,11 @@ interface Props {
   sweep?: boolean;
   /** Index-line labels, degree ticks and the sheet title — off for tiny instances. */
   labels?: boolean;
+  /** Draw a locator line from the active blip to the sheet's east edge. */
+  locator?: boolean;
 }
 
-export function SoundingChart({ points, active = null, className = "", strength = 1, sweep = true, labels = true }: Props) {
+export function SoundingChart({ points, active = null, className = "", strength = 1, sweep = true, labels = true, locator = false }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const activeRef = useRef(active);
   activeRef.current = active;
@@ -146,7 +148,19 @@ export function SoundingChart({ points, active = null, className = "", strength 
         ctx.lineWidth = 1.2;
         ctx.fillRect(-r, -r, r * 2, r * 2); ctx.strokeRect(-r, -r, r * 2, r * 2);
         ctx.restore();
-        if (hot) { ctx.strokeStyle = teal(0.5); ctx.beginPath(); ctx.arc(p.x, p.y, 12, 0, Math.PI * 2); ctx.stroke(); }
+        if (hot) {
+          ctx.strokeStyle = teal(0.5); ctx.beginPath(); ctx.arc(p.x, p.y, 12, 0, Math.PI * 2); ctx.stroke();
+          if (locator) {
+            // a restrained locator: thin line east to the frame, a tick at the end
+            ctx.setLineDash([3, 5]);
+            ctx.strokeStyle = teal(0.7);
+            ctx.beginPath(); ctx.moveTo(p.x + 14, p.y); ctx.lineTo(br.x, p.y); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = teal(0.9);
+            ctx.fillRect(br.x - 1, p.y - 6, 2, 12);
+            ctx.fillText(`${Math.abs(pt.lat).toFixed(2)}° ${pt.lat < 0 ? "S" : "N"}`, p.x + 18, p.y + 12);
+          }
+        }
         ctx.fillStyle = hot ? `rgba(219,231,229,${strength})` : dim(0.9);
         // labels flip to the west of a blip that sits near the sheet's east edge
         const tw = ctx.measureText(pt.label).width;
@@ -181,7 +195,7 @@ export function SoundingChart({ points, active = null, className = "", strength 
       ro.disconnect(); io.disconnect();
       document.removeEventListener("visibilitychange", kick);
     };
-  }, [points, strength, sweep, labels]);
+  }, [points, strength, sweep, labels, locator]);
 
   // a hover or scroll that changes the active blip repaints at once, so the
   // still frame under reduced motion is never stale

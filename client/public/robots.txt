@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://farwater.vercel.app/sitemap.xml
+Sitemap: https://farwater-theta.vercel.app/sitemap.xml

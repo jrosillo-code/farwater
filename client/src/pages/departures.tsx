@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { DescentShell, PageHead, Marquee } from "@/components/descent/shell";
 import { SoundingChart } from "@/components/descent/sounding-chart";
 import { SeasonTicks } from "@/components/descent/slate-rail";
+import { WaterSignature } from "@/components/descent/water-signature";
 import { DEPARTURES, STATUS_LABEL, parseCoords } from "@/lib/departures";
 
 // The slate as a chart table. The plotting sheet pins on the right; the
@@ -106,6 +107,17 @@ export default function Departures() {
                   className="flex min-h-[60vh] items-center border-t border-[var(--sea-line)] py-10 last:border-b lg:min-h-[72vh]"
                 >
                   <Link href={`/departure/${d.id}`} className="group block w-full" data-testid={`row-departure-${d.id}`}>
+                    <motion.div
+                      initial={{ clipPath: "inset(0 100% 0 0)" }}
+                      whileInView={{ clipPath: "inset(0 0% 0 0)" }}
+                      viewport={{ once: true, margin: "-10% 0px" }}
+                      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                      className="relative mb-7 aspect-[21/9] overflow-hidden border border-[var(--sea-line)]"
+                    >
+                      <WaterSignature seed={d.coords} className="absolute inset-0 h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" />
+                      <span className="coord absolute bottom-3 left-3 text-[9px] text-[var(--sea-text-dim)]">GENERATED CHART MOTIF · NOT A PHOTOGRAPH</span>
+                      <span className="coord absolute right-3 top-3 text-[10px] text-[var(--teal-bright)] opacity-0 transition-opacity group-hover:opacity-100">{d.depth ? `WORKING −${d.depth[0]} TO −${d.depth[1]} m` : "DEPTH UNVERIFIED"}</span>
+                    </motion.div>
                     <div className="flex items-center gap-4">
                       <span className={`h-2 w-2 rotate-45 ${hot ? "blip bg-[var(--teal-bright)]" : "border border-[var(--sea-text-dim)]"}`} aria-hidden />
                       <span className="coord text-[11px] text-[var(--teal-bright)]">{d.code}</span>
