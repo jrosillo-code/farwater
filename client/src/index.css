@@ -214,3 +214,25 @@ button:active, [role="button"]:active { transform: scale(0.985); }
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.08em;
 }
+
+/* ── The descent (home page) ─────────────────────────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+html.has-reticle, html.has-reticle * { cursor: none !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ambience-bar { animation: ambience-bar 0.9s ease-in-out infinite alternate; }
+  @keyframes ambience-bar {
+    from { height: 3px; }
+    to { height: 12px; }
+  }
+  .descend-hint { animation: descend-hint 1.8s ease-in-out infinite; }
+  @keyframes descend-hint {
+    0%, 100% { transform: translateY(0); opacity: .55; }
+    50% { transform: translateY(6px); opacity: 1; }
+  }
+}
+.ambience-bar { height: 8px; }

@@ -28,8 +28,9 @@ export function ContourMark({ className = "h-7 w-7" }: { className?: string }) {
 }
 
 interface SharedHeaderProps {
-  /** "chart" floats over a dark .sea hero until scroll; "solid" is always paper. */
-  variant?: "chart" | "solid";
+  /** "chart" floats over a dark .sea hero until scroll; "solid" is always paper;
+   *  "sea" stays in sea-glass for a page that is dark water top to bottom. */
+  variant?: "chart" | "solid" | "sea";
 }
 
 export function SharedHeader({ variant = "solid" }: SharedHeaderProps) {
@@ -56,10 +57,13 @@ export function SharedHeader({ variant = "solid" }: SharedHeaderProps) {
 
   useEffect(() => setMenuOpen(false), [location]);
 
-  const overSea = variant === "chart" && !scrolled && !menuOpen;
-  const shell = overSea
-    ? "bg-transparent"
-    : "bg-background/95 backdrop-blur-md max-md:backdrop-blur-none max-md:bg-background border-b border-border";
+  const overSea = (variant === "chart" && !scrolled && !menuOpen) || (variant === "sea" && !menuOpen);
+  const shell =
+    variant === "sea" && scrolled && !menuOpen
+      ? "bg-[rgba(13,24,28,.82)] backdrop-blur-md border-b border-[var(--sea-line)]"
+      : overSea
+        ? "bg-transparent"
+        : "bg-background/95 backdrop-blur-md max-md:backdrop-blur-none max-md:bg-background border-b border-border";
   const ink = overSea ? "text-[var(--sea-text)]" : "text-foreground";
   const dim = overSea
     ? "text-[var(--sea-text-dim)] hover:text-[var(--sea-text)]"
