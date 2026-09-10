@@ -9,9 +9,11 @@ export interface Chapter { at: number; label: string }
 
 export const MAX_DEPTH = 40;
 
-export function DepthGauge({ progress, chapters }: { progress: MotionValue<number>; chapters: Chapter[] }) {
+export function DepthGauge({ progress: raw, chapters }: { progress: MotionValue<number>; chapters: Chapter[] }) {
   const [metres, setMetres] = useState(0);
   const [chapter, setChapter] = useState(chapters[0]?.label ?? "");
+  // a page too short to scroll is the surface, not the bottom
+  const progress = useTransform(raw, (v) => (document.documentElement.scrollHeight - window.innerHeight < 80 ? 0 : v));
   const needleTop = useTransform(progress, [0, 1], ["0%", "100%"]);
 
   useMotionValueEvent(progress, "change", (v) => {

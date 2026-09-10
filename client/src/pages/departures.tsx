@@ -1,124 +1,186 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { SharedHeader } from "@/components/shared-header";
-import { SiteFooter } from "@/components/site-footer";
-import { SeasonStrip } from "@/components/season-strip";
-import { DEPARTURES, STATUS_LABEL } from "@/lib/departures";
+import { DescentShell, PageHead, Marquee } from "@/components/descent/shell";
+import { SoundingChart } from "@/components/descent/sounding-chart";
+import { SeasonTicks } from "@/components/descent/slate-rail";
+import { DEPARTURES, STATUS_LABEL, parseCoords } from "@/lib/departures";
 
-// The slate, in full: every departure as a chart row rather than a brochure
-// card. The scouting entry stays on the page unpriced on purpose — showing
-// what we won't sell yet is the loudest safety claim on the site.
+// The slate as a chart table. The plotting sheet pins on the right; the
+// departures sail past on the left, and whichever row is under the reader
+// lights its blip on the sheet. The scouting entry stays unpriced on
+// purpose — showing what we won't sell yet is the loudest safety claim here.
+
+const CHAPTERS = [
+  { at: 0, label: "The chart" },
+  { at: 0.14, label: "The slate" },
+  { at: 0.86, label: "Apply" },
+];
+
+const STATUS_CLASS: Record<string, string> = {
+  open: "border-[var(--teal-bright)]/60 text-[var(--teal-bright)]",
+  forming: "border-[var(--sea-text)]/30 text-[var(--sea-text)]/70",
+  scouting: "border-[var(--signal)]/60 text-[var(--signal)]",
+};
 
 export default function Departures() {
-  return (
-    <div className="min-h-screen bg-background">
-      <SharedHeader variant="solid" />
-      <main className="pb-24 pt-32">
-        <div className="mx-auto max-w-5xl px-6">
-          <motion.header
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-4"
-          >
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">The founding slate</p>
-            <h1 className="mt-3 font-display text-5xl font-bold uppercase tracking-tight text-foreground md:text-6xl">
-              Departures
-            </h1>
-            <p className="mt-5 max-w-2xl font-body text-lg italic leading-relaxed text-muted-foreground">
-              Three commercial waters and one scout. Seven to ten days each, six to eight guns
-              a boat, one professional safety lead in the water on every one. Pricing is on the
-              page — if a number isn't, the departure isn't for sale yet.
-            </p>
-          </motion.header>
+  const [active, setActive] = useState<string | null>(DEPARTURES[0].id);
+  const rowsRef = useRef<HTMLDivElement>(null);
+  const points = useMemo(
+    () => DEPARTURES.flatMap((d) => { const c = parseCoords(d.coords); return c ? [{ id: d.id, lat: c.lat, lon: c.lon, label: d.code }] : []; }),
+    [],
+  );
 
-          <div className="mt-12 space-y-6">
+  // the row crossing the middle of the viewport is the live one
+  useEffect(() => {
+    const rows = rowsRef.current?.querySelectorAll<HTMLElement>("[data-row]");
+    if (!rows?.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setActive(e.target.getAttribute("data-row"));
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+    );
+    rows.forEach((r) => io.observe(r));
+    return () => io.disconnect();
+  }, []);
+
+  const strip = DEPARTURES.map((d) => `${d.code} · ${d.place.toUpperCase()} · ${d.coords} · ${d.window}`);
+
+  return (
+    <DescentShell chapters={CHAPTERS}>
+      <section className="px-6 pb-10 pt-36 lg:pl-36">
+        <div className="mx-auto max-w-7xl">
+          <PageHead kicker="The founding slate" title="Departures">
+            <p className="mt-6 max-w-2xl font-body text-lg italic leading-relaxed text-[var(--sea-text-dim)] md:text-xl">
+              Three commercial waters and one scout. Seven to ten days each, six to eight guns a boat,
+              one professional safety lead in the water on every one. Pricing is on the page — if a
+              number isn't, the departure isn't for sale yet.
+            </p>
+          </PageHead>
+        </div>
+      </section>
+      <Marquee items={strip} />
+
+      <section className="px-6 lg:pl-36" data-testid="chart-table">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
+          {/* the sheet: pinned on wide screens, a block above the rows on phones */}
+          <div className="order-first lg:order-last">
+            <div className="lg:sticky lg:top-24 lg:flex lg:h-[calc(100vh-7rem)] lg:flex-col lg:gap-4">
+              <div className="relative h-[52vw] max-h-[28rem] w-full overflow-hidden border border-[var(--sea-line)] lg:h-auto lg:max-h-none lg:flex-1">
+                <SoundingChart points={points} active={active} className="absolute inset-0 h-full w-full" />
+              </div>
+              {/* the active water's instrument line, following the rows */}
+              {(() => {
+                const a = DEPARTURES.find((d) => d.id === active) ?? DEPARTURES[0];
+                return (
+                  <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border border-[var(--sea-line)] bg-[rgba(18,32,38,.6)] p-5 lg:mt-0" data-testid="chart-panel">
+                    <div className="col-span-2 flex items-baseline justify-between">
+                      <span className="coord text-[10px] text-[var(--sea-text-dim)]">ACTIVE WATER</span>
+                      <span className="coord text-[11px] text-[var(--teal-bright)]" data-testid="chart-active">{a.code}</span>
+                    </div>
+                    <p className="col-span-2 font-display text-2xl font-bold uppercase leading-none tracking-tight text-[var(--sea-text)]">{a.title}</p>
+                    <span className="coord text-[10px] text-[var(--sea-text-dim)]">{a.coords}</span>
+                    <span className="coord text-right text-[10px] text-[var(--sea-text-dim)]">{a.window}</span>
+                    <span className="coord text-[10px] text-[var(--sea-text-dim)]">{a.days} DAYS · {a.guns} GUNS</span>
+                    <span className="coord text-right text-[10px] text-[var(--sea-text-dim)]">{a.depth ? `−${a.depth[0]} TO −${a.depth[1]} m` : "DEPTH UNVERIFIED"}</span>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          <div ref={rowsRef} className="py-6 lg:py-12">
             {DEPARTURES.map((d, i) => {
               const scouting = d.status === "scouting";
-              const inner = (
-                <div
-                  className={`rounded-md border p-6 transition-colors md:p-8 ${
-                    scouting
-                      ? "border-[var(--signal)]/30 bg-card"
-                      : "border-card-border bg-card group-hover:border-primary/60"
-                  }`}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <span className="coord text-xs text-primary">{d.code}</span>
-                    <span
-                      className={`rounded-sm border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] ${
-                        d.status === "open"
-                          ? "border-primary/50 text-primary"
-                          : d.status === "forming"
-                            ? "border-foreground/25 text-foreground/70"
-                            : "border-[var(--signal)]/50 text-[var(--signal)]"
-                      }`}
-                    >
-                      {STATUS_LABEL[d.status]}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-1">
-                    <h2 className={`font-display text-3xl font-bold uppercase tracking-tight md:text-4xl ${scouting ? "text-foreground/80" : "text-foreground group-hover:text-primary"} transition-colors`}>
-                      {d.title}
-                    </h2>
-                    <span className="coord text-xs text-muted-foreground">
-                      {d.place.toUpperCase()}, {d.country.toUpperCase()} · {d.coords}
-                    </span>
-                  </div>
-                  <p className="mt-3 max-w-2xl font-body italic leading-relaxed text-muted-foreground">{d.tagline}</p>
-                  <div className="mt-6 grid gap-6 border-t border-border pt-5 sm:grid-cols-[auto_1fr] sm:items-center">
-                    <SeasonStrip months={d.months} />
-                    <div className="flex flex-wrap items-center gap-x-8 gap-y-2 sm:justify-end">
-                      <span className="coord text-[11px] text-muted-foreground">{d.window}</span>
-                      <span className="coord text-[11px] text-muted-foreground">{d.days} DAYS · {d.guns} GUNS</span>
-                      {d.from ? (
-                        <span className="coord text-[11px] text-foreground">FROM {d.from}</span>
-                      ) : (
-                        <span className="coord text-[11px] text-muted-foreground">{scouting ? "NOT BOOKABLE" : "TERMS SOON"}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
+              const hot = active === d.id;
               return (
                 <motion.div
                   key={d.id}
-                  initial={{ opacity: 0, y: 22 }}
+                  data-row={d.id}
+                  initial={{ opacity: 0, y: 26 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.55, delay: i * 0.05 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  onMouseEnter={() => setActive(d.id)}
+                  className="flex min-h-[60vh] items-center border-t border-[var(--sea-line)] py-10 last:border-b lg:min-h-[72vh]"
                 >
-                  <Link href={`/departure/${d.id}`} className="group block" data-testid={`row-departure-${d.id}`}>
-                    {inner}
+                  <Link href={`/departure/${d.id}`} className="group block w-full" data-testid={`row-departure-${d.id}`}>
+                    <div className="flex items-center gap-4">
+                      <span className={`h-2 w-2 rotate-45 ${hot ? "blip bg-[var(--teal-bright)]" : "border border-[var(--sea-text-dim)]"}`} aria-hidden />
+                      <span className="coord text-[11px] text-[var(--teal-bright)]">{d.code}</span>
+                      <span className="coord text-[10px] text-[var(--sea-text-dim)]">{String(i + 1).padStart(2, "0")} / {String(DEPARTURES.length).padStart(2, "0")}</span>
+                      <span className={`ml-auto rounded-sm border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] ${STATUS_CLASS[d.status]}`}>
+                        {STATUS_LABEL[d.status]}
+                      </span>
+                    </div>
+                    <h2
+                      className={`mt-5 font-display text-5xl font-bold uppercase leading-[0.92] tracking-tight transition-colors md:text-6xl xl:text-7xl ${
+                        scouting ? "text-[var(--sea-text)]/75" : "text-[var(--sea-text)] group-hover:text-[var(--teal-bright)]"
+                      }`}
+                      style={{ textWrap: "balance" }}
+                    >
+                      {d.title}
+                    </h2>
+                    <p className="coord mt-3 text-xs text-[var(--sea-text-dim)]">
+                      {d.place.toUpperCase()}, {d.country.toUpperCase()} · {d.coords}
+                    </p>
+                    <p className="mt-5 max-w-xl font-body text-lg italic leading-relaxed text-[var(--sea-text-dim)]">{d.tagline}</p>
+                    <div className="mt-7 grid gap-5 border-t border-[var(--sea-line)] pt-5 sm:grid-cols-[auto_1fr] sm:items-center">
+                      <SeasonTicks months={d.months} />
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 sm:justify-end">
+                        <span className="coord text-[11px] text-[var(--sea-text-dim)]">{d.window}</span>
+                        <span className="coord text-[11px] text-[var(--sea-text-dim)]">{d.days} DAYS · {d.guns} GUNS</span>
+                        <span className="coord text-[11px] text-[var(--sea-text-dim)]">
+                          {d.depth ? `WORKING −${d.depth[0]} TO −${d.depth[1]} m` : "DEPTH UNVERIFIED"}
+                        </span>
+                        {d.from ? (
+                          <span className="coord text-[11px] text-[var(--sea-text)]">FROM {d.from}</span>
+                        ) : (
+                          <span className="coord text-[11px] text-[var(--signal)]">{scouting ? "NOT BOOKABLE" : "TERMS SOON"}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {d.species.map((s) => (
+                        <span key={s} className="rounded-sm border border-[var(--sea-line)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--sea-text-dim)]">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="mt-6 inline-block font-mono text-xs uppercase tracking-[0.2em] text-[var(--teal-bright)] opacity-0 transition-opacity group-hover:opacity-100">
+                      Open the dossier →
+                    </span>
                   </Link>
                 </motion.div>
               );
             })}
           </div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mt-16 rounded-md border border-border bg-muted/40 p-6 text-center md:p-8"
-          >
-            <p className="font-body italic leading-relaxed text-muted-foreground">
-              Season bars show when each water fishes: tall teal is peak, short teal is workable,
-              faint is off-season. Dates inside each window are set with the confirmed guns —
-              the current and the operator decide them, not a brochure.
-            </p>
-            <Link
-              href="/apply"
-              className="mt-6 inline-block rounded-sm bg-primary px-8 py-3 font-display text-sm font-bold uppercase tracking-[0.18em] text-primary-foreground transition-opacity hover:opacity-90"
-              data-testid="cta-apply-departures"
-            >
-              Apply for a departure
-            </Link>
-          </motion.div>
         </div>
-      </main>
-      <SiteFooter />
-    </div>
+      </section>
+
+      <section className="px-6 py-24 lg:pl-36" data-testid="section-apply">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto max-w-3xl border border-[var(--sea-line)] bg-[rgba(18,32,38,.6)] p-8 text-center md:p-10"
+        >
+          <p className="font-body italic leading-relaxed text-[var(--sea-text-dim)]">
+            Season bars show when each water fishes: tall teal is peak, short teal is workable, faint
+            is off-season. Dates inside each window are set with the confirmed guns — the current and
+            the operator decide them, not a brochure.
+          </p>
+          <Link
+            href="/apply"
+            className="mt-7 inline-block rounded-sm bg-[var(--teal-bright)] px-8 py-3.5 font-display text-sm font-bold uppercase tracking-[0.18em] text-[var(--sea-ink)] transition-colors hover:bg-[var(--sea-text)]"
+            data-testid="cta-apply-departures"
+          >
+            Apply for a departure
+          </Link>
+        </motion.div>
+      </section>
+    </DescentShell>
   );
 }

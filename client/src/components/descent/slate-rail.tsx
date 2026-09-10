@@ -8,7 +8,7 @@ import { DEPARTURES, MONTH_LETTERS, STATUS_LABEL, type Departure } from "@/lib/d
 // sideways for one chapter. On phones and under reduced motion the plates
 // simply stack, which is the same information without the theatre.
 
-function SeasonTicks({ months }: { months: Departure["months"] }) {
+export function SeasonTicks({ months }: { months: Departure["months"] }) {
   return (
     <div className="flex items-end gap-1.5" role="img" aria-label="Season by month">
       {MONTH_LETTERS.map((letter, i) => {

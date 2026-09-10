@@ -18,6 +18,8 @@ export interface Departure {
   days: number;
   guns: number;
   from?: string; // founding rate; absent while forming/scouting
+  /** Honest working-depth band in metres; absent until we've dived it. */
+  depth?: [number, number];
   species: string[];
   tagline: string;
   /** Month indexes (0–11) — drawn on the season chart. */
@@ -42,6 +44,7 @@ export const DEPARTURES: Departure[] = [
     days: 7,
     guns: 8,
     from: "$8,500",
+    depth: [10, 25],
     species: ["Yellowtail", "Wahoo", "Yellowfin tuna", "Pargo"],
     tagline: "Cousteau called it the world's aquarium. We fish the far side of it.",
     months: { on: [4, 9, 10], peak: [5, 6, 7, 8] },
@@ -73,6 +76,7 @@ export const DEPARTURES: Departure[] = [
     country: "Panama",
     coords: "7.4106° N, 80.1745° W",
     status: "forming",
+    depth: [8, 20],
     window: "JAN — APR 2028",
     days: 8,
     guns: 8,
@@ -108,6 +112,7 @@ export const DEPARTURES: Departure[] = [
     days: 7,
     guns: 6,
     from: "$9,200",
+    depth: [15, 30],
     species: ["Amberjack", "Wahoo", "Barracuda", "Bonito"],
     tagline: "Mid-Atlantic volcanoes, water the color of bottle glass.",
     months: { on: [5, 8], peak: [6, 7] },
@@ -167,3 +172,12 @@ export const STATUS_LABEL: Record<DepartureStatus, string> = {
   forming: "Forming — terms soon",
   scouting: "In scouting — not bookable",
 };
+
+/** "24.1426° N, 110.3128° W" → signed decimal degrees, for the plotting sheet. */
+export function parseCoords(coords: string): { lat: number; lon: number } | null {
+  const m = coords.match(/([\d.]+)°\s*([NS]),\s*([\d.]+)°\s*([EW])/);
+  if (!m) return null;
+  const lat = parseFloat(m[1]) * (m[2] === "S" ? -1 : 1);
+  const lon = parseFloat(m[3]) * (m[4] === "W" ? -1 : 1);
+  return { lat, lon };
+}

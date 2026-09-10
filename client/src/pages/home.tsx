@@ -1,21 +1,13 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Link } from "wouter";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { SharedHeader } from "@/components/shared-header";
-import { SiteFooter } from "@/components/site-footer";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { SeaChart } from "@/components/sea-chart";
-import { Chatbot } from "@/components/chatbot";
 import { BRAND, THESIS } from "@/lib/brand";
 import { DEPARTURES } from "@/lib/departures";
-import { useLenis } from "@/hooks/use-lenis";
-import { Opening } from "@/components/descent/opening";
-import { MarineSnow } from "@/components/descent/marine-snow";
-import { DepthGauge } from "@/components/descent/depth-gauge";
+import { DescentShell, useDescentReady } from "@/components/descent/shell";
 import { SlateRail } from "@/components/descent/slate-rail";
 import { StandardStations } from "@/components/descent/standard-stations";
 import { ScrubText } from "@/components/descent/scrub-text";
-import { Reticle } from "@/components/descent/reticle";
-import { Ambience } from "@/components/descent/ambience";
 
 // The home page is one descent. Scroll is depth: the page starts at the
 // surface and ends forty metres down, a gauge on the left reads the metres,
@@ -34,7 +26,8 @@ const CHAPTERS = [
   { at: 0.92, label: "Apply" },
 ];
 
-function Hero({ ready }: { ready: boolean }) {
+function Hero() {
+  const ready = useDescentReady();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const chartY = useTransform(scrollYProgress, [0, 1], ["0%", "28%"]);
@@ -176,30 +169,13 @@ function ApplyBand() {
 }
 
 export default function Home() {
-  const [ready, setReady] = useState(false);
-  useLenis(true);
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.3 });
-  // the water darkens with depth: ink at the surface, near-black at the bottom
-  const water = useTransform(progress, [0, 0.55, 1], ["#0d181c", "#081215", "#03080a"]);
-
   return (
-    <motion.div className="sea relative min-h-screen" style={{ backgroundColor: water }} data-testid="descent">
-      <Opening onDone={() => setReady(true)} />
-      <Reticle />
-      <MarineSnow />
-      <DepthGauge progress={progress} chapters={CHAPTERS} />
-      <Ambience />
-      <SharedHeader variant="sea" />
-      <main className="relative z-[2]">
-        <Hero ready={ready} />
-        <SlateRail />
-        <StandardStations />
-        <Straight />
-        <ApplyBand />
-      </main>
-      <SiteFooter />
-      <Chatbot />
-    </motion.div>
+    <DescentShell chapters={CHAPTERS} opening snow={110}>
+      <Hero />
+      <SlateRail />
+      <StandardStations />
+      <Straight />
+      <ApplyBand />
+    </DescentShell>
   );
 }
